@@ -188,12 +188,12 @@ const commands =
 
         farr = files.filter(v=>!seen.includes(v))
 
+        let f = files[Math.floor(Math.random() * farr.length)]
+            if (!farr || farr == []) break;
+        try {
+          await c.send({files:[f]})
+        }catch(e) {console.log('there was an error with sending...')}
 
-		let f = files[Math.floor(Math.random() * farr.length)]
-        if (!farr || farr == []) break;
-		try {
-			await c.send({files:[DIR+'/'+f]})
-		}catch(e) {}
 
       }
       console.log('Stopped')
@@ -316,6 +316,16 @@ const commands =
 
 }
 
+let update = (type, urls) => {
+  let found = urls.filter(r=> ! (currentData[type] ?? currentData['Normal']).includes(r))
+  if (!currentData[type]) currentData[type] = []
+  currentData[type] = [
+    ...(currentData[type] ?? []),
+    ...found
+  ]
+}
+
+
 
 // const DetectionRegex = /[^"-~ ]/gm
 
@@ -337,6 +347,8 @@ bot.on("ready", async() => {
   if (!fs.existsSync(path.join(hentaiPath,'/Yuri'))) 
     fs.mkdirSync(path.join(hentaiPath,'/Yuri'))
 
+
+  setInterval(()=>fs.writeFileSync('./hData.json',JSON.stringify(currentData,null,4)),30e3)
 
     // setInterval(() => {
     //   bot.channels.get('747189925035769906').startTyping()
@@ -375,9 +387,11 @@ bot.on('message',async msg => {
 
   switch (msg.channel.id) {
     case ('681523355576303627') :
+      update('Normal',msg.attachments.map(v=>v.url))
       DownloadAllAttachmentsFromMessage(msg,path.join(hentaiPath,'/Normal'))
       break;
     case ('681523619725443210') :
+      update('Yuri',msg.attachments.map(v=>v.url))
       DownloadAllAttachmentsFromMessage(msg,path.join(hentaiPath,'/Yuri'))
       break;
     case (anime ? '681523223724425369' : '') :
