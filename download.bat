@@ -1,0 +1,1 @@
+powershell -Command "Invoke-WebRequest %1 -OutFile '%2 %3'"
